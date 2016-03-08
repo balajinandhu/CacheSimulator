@@ -45,10 +45,6 @@ typedef struct t_LRU_Directory
   Node *MRU;
   long Size;
 }t_LRU_Directory;
-typedef struct t_CLOCK_Directory
-{
-  Node *Hand;
-}t_CLOCK_Directory;
 // Cache memory sructure
 typedef struct t_CacheMemory
 {
@@ -63,7 +59,6 @@ typedef void (* t_pDisplayFunction)(void *);
 /* CAR Directory */
 t_CAR_Directory CAR_Dir;
 t_LRU_Directory LRU_Dir;
-t_CLOCK_Directory CLOCK_Dir;
 /* Cache Variables */
 long CACHE_SIZE; //Size of cache from user input
 t_CacheMemory *CacheMemory; //Actual data representation in cache
@@ -115,13 +110,6 @@ long LRU_DiscardLRU(t_LRU_Directory *pDir);
 Node *LRU_Search(t_LRU_Directory *pDir, long MemAddress);
 void LRU_Delete(t_LRU_Directory *pDir);
 void LRU_Display(void *pDirectory);
-
-/* CLOCK Functions */
-void CLOCK_Init(t_CLOCK_Directory *pDir);
-bool CLOCK_AlgorithmExec(void *pDirectory, long MemAddress, long *CacheAddress);
-Node *CLOCK_Search(t_CLOCK_Directory *pDir, long MemAddress);
-void CLOCK_Delete(t_CLOCK_Directory *pDir);
-void CLOCK_Display(void *pDirectory);
 
 
 long Min(long a, long b);
@@ -779,108 +767,6 @@ void LRU_Delete(t_LRU_Directory *pDir)
   pDir->LRU = NULL;
   pDir->MRU = NULL;
   pDir->Size = 0;
-}
-//////////////////////////////////////////////////////////////////////////
-// CLOCK
-//////////////////////////////////////////////////////////////////////////
-/* Initialize CLOCK directory */
-void CLOCK_Init(t_CLOCK_Directory *pDir)
-{
-  Node *prevNode;
-  Node *newNode = new Node;
-  newNode->MemAddress = INVALID;
-  newNode->CacheAddress = INVALID;
-  newNode->Reference = FALSE;
-  pDir->Hand = newNode;
-  prevNode = pDir->Hand;
-  for(long i=0;i<CACHE_SIZE-1;i++)
-    {
-      newNode = new Node;
-      newNode->MemAddress = INVALID;
-      newNode->CacheAddress = INVALID;
-      newNode->Reference = FALSE;
-      newNode->prevNode = prevNode;
-      prevNode->nextNode = newNode;
-      prevNode = newNode;
-    }
-  /* Make it a circular list */
-  prevNode->nextNode = pDir->Hand;
-  pDir->Hand->prevNode = prevNode;
-}
-/* Clocl Replacement Algorithm Implementation */
-bool CLOCK_AlgorithmExec(void *pDirectory, long MemAddress, long *CacheAddress)
-{
-  Node *pNode;
-  t_CLOCK_Directory *pDir = (t_CLOCK_Directory *)pDirectory;
-  if( (pNode = CLOCK_Search(pDir, MemAddress)) != NULL)
-    {
-      /* HIT */
-      pNode->Reference = TRUE;
-      return TRUE;
-    }
-  else
-    {
-      /* MISS */
-      if( (*CacheAddress = CacheMemGetFreeLocation()) == INVALID )
-        {
-          /* Cache full */
-          while(pDir->Hand->Reference == TRUE)
-            {
-              pDir->Hand->Reference = FALSE;
-              pDir->Hand = pDir->Hand->nextNode;
-            }
-          *CacheAddress = pDir->Hand->CacheAddress;
-        }
-      else
-        {
-          pDir->Hand->CacheAddress = *CacheAddress;
-        }
-      pDir->Hand->MemAddress = MemAddress;
-      pDir->Hand = pDir->Hand->nextNode;
-    }
-  return FALSE;
-}
-/* Search for reference in CLOCK Directory */
-Node *CLOCK_Search(t_CLOCK_Directory *pDir, long MemAddress)
-{
-  Node *pNode = pDir->Hand;
-  do
-    {
-      if(pNode == NULL) break;
-      if(pNode->MemAddress == MemAddress)
-        return pNode;
-      pNode = pNode->nextNode;
-    }while(pNode != pDir->Hand);
-  return NULL;
-}
-/* Remove all memory allocation for CLOCK directory */
-void CLOCK_Delete(t_CLOCK_Directory *pDir)
-{
-  Node *pNode = pDir->Hand;
-  Node *pHand = pDir->Hand;
-  Node *pDelNode;
-  while(pNode != NULL)
-    {
-      pDelNode = pNode;
-      pNode = pNode->nextNode;
-      delete pDelNode;
-      if(pNode == pHand) break;
-    }
-  pDir->Hand = NULL;
-}
-/* Display CLOCK directory contents */
-void CLOCK_Display(void *pDirectory)
-{
-  t_CLOCK_Directory *pDir = (t_CLOCK_Directory *)pDirectory;
-  Node *pNode = pDir->Hand;
-  printf("HAND...: ");
-  do
-    {
-      if(pNode == NULL) break;
-      printf("%4d|%d ", pNode->MemAddress,pNode->Reference);
-      pNode = pNode->nextNode;
-    }while(pNode != pDir->Hand);
-  printf("\n");
 }
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////End of file ////////////////////////////////

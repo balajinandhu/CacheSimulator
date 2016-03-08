@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
       NoOfReferences = 0;
       HitCount = 0;
       /* Select Algorithm */
-      printf("CAR:1 LRU:2 CLOCK:3 Quit:0 \n");
+      printf("CAR:1 LRU:2 Quit:0 \n");
       printf("Select Replacement Algorithm :");
       scanf("%s", Selection);
       if(strcmp(Selection, "0") == 0) exit(0);
@@ -56,12 +56,6 @@ int main(int argc, char * argv[])
           DisplayDirectory = LRU_Display;
           LRU_Init(&LRU_Dir);
           break;
-        case 3: // CLOCK
-          ExecReplacementAlg = CLOCK_AlgorithmExec;
-          Directory = &CLOCK_Dir;
-          DisplayDirectory = CLOCK_Display;
-          CLOCK_Init(&CLOCK_Dir);
-          break;
         default:
           printf("ERROR: Invalid Selection. Try again...\n\n");
           continue;
@@ -73,7 +67,8 @@ int main(int argc, char * argv[])
       /* Initialize Cache memory */
       CacheMemInit();
       /* Error handling for the input file */
-      if( (pInputFile = fopen("C:\\Users\\Balaji\\Documents\\OS_Project\\CacheSim\\input.txt", "r")) == NULL)
+      // if( (pInputFile = fopen("C:\\Users\\Balaji\\Documents\\OS_Project\\CacheSim\\input.txt", "r")) == NULL)
+      if( (pInputFile = fopen("/Users/tanmaykuruvilla/Projects/CacheSimulator/CacheSim/input.txt", "r")) == NULL)
         {
           printf("Unable to open input file\n");
           exit(0);
@@ -114,7 +109,6 @@ int main(int argc, char * argv[])
       /* Delete all memory allocations */
       CAR_Delete(&CAR_Dir);
       LRU_Delete(&LRU_Dir);
-      CLOCK_Delete(&CLOCK_Dir);
       delete CacheMemory;
       fclose(pInputFile);
     }
