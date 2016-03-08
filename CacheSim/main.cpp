@@ -68,7 +68,8 @@ int main(int argc, char * argv[])
       CacheMemInit();
       /* Error handling for the input file */
       // if( (pInputFile = fopen("C:\\Users\\Balaji\\Documents\\OS_Project\\CacheSim\\input.txt", "r")) == NULL)
-      if( (pInputFile = fopen("/Users/tanmaykuruvilla/Projects/CacheSimulator/CacheSim/input.txt", "r")) == NULL)
+      // if( (pInputFile = fopen("/Users/tanmaykuruvilla/Projects/CacheSimulator/CacheSim/input.txt", "r")) == NULL)
+      if( (pInputFile = fopen("./input.txt", "r")) == NULL)
         {
           printf("Unable to open input file\n");
           exit(0);
